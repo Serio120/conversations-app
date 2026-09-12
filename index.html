@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Conversaciones con IA</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .conversation {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+        .meta {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .user-message {
+            border-left: 4px solid #0078d4;
+            padding-left: 10px;
+            margin: 10px 0;
+        }
+        .ai-response {
+            border-left: 4px solid #ffb100;
+            padding-left: 10px;
+            margin: 10px 0;
+        }
+        .ai-response a {
+            color: #0078d4;
+            text-decoration: underline;
+        }
+        .images img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 80px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            resize: vertical;
+        }
+        .toggle-btn, .copy-btn {
+            background: #0078d4;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .toggle-btn:hover, .copy-btn:hover {
+            background: #005ea0;
+        }
+        .hidden {
+            display: none;
+        }
+        .edge-metadata {
+            background: #eef2f7;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+        }
+    </style>
+
+    <script>
+        function toggleSection(id) {
+            const section = document.getElementById(id);
+            section.classList.toggle("hidden");
+        }
+
+        function copyConversation(id) {
+            const content = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(content);
+            alert("Conversación copiada al portapapeles");
+        }
+    </script>
+</head>
+
+<body>
+
+<h1>Conversaciones con modelos de IA</h1>
+
+<!-- METADATOS DE EDGE -->
+<div class="conversation">
+    <h2>Metadatos de sesión del navegador</h2>
+    <button class="toggle-btn" onclick="toggleSection('edgeMeta')">Mostrar/Ocultar</button>
+
+    <div id="edgeMeta" class="edge-metadata hidden">
+edge_all_open_tabs = [
+{"pageTitle":"<WebsiteContent_vmoWykTR1z6c91WX33gGS></WebsiteContent_vmoWykTR1z6c91WX33gGS>","pageUrl":"<WebsiteContent_vmoWykTR1z6c91WX33gGS></WebsiteContent_vmoWykTR1z6c91WX33gGS>","tabId":-1,"isCurrent":true},
+{"pageTitle":"<WebsiteContent_vmoWykTR1z6c91WX33gGS>Traductor de Google</WebsiteContent_vmoWykTR1z6c91WX33gGS>","pageUrl":"<WebsiteContent_vmoWykTR1z6c91WX33gGS>https://translate.google.es</WebsiteContent_vmoWykTR1z6c91WX33gGS>","tabId":1755168463,"isCurrent":false},
+{"pageTitle":"<WebsiteContent_vmoWykTR1z6c91WX33gGS>traductor google - Búsqueda</WebsiteContent_vmoWykTR1z6c91WX33gGS>","pageUrl":"<WebsiteContent_vmoWykTR1z6c91WX33gGS>https://www.bing.com/search</WebsiteContent_vmoWykTR1z6c91WX33gGS>","tabId":1755168458,"isCurrent":false},
+{"pageTitle":"<WebsiteContent_vmoWykTR1z6c91WX33gGS>(3) NIER AUTOMATA Gameplay Walkthrough FULL GAME (4K 60FPS) No Commentary - YouTube</WebsiteContent_vmoWykTR1z6c91WX33gGS>","pageUrl":"<WebsiteContent_vmoWykTR1z6c91WX33gGS>https://www.youtube.com/watch?v=LgRIzMbgv38</WebsiteContent_vmoWykTR1z6c91WX33gGS>","tabId":1755168504,"isCurrent":false},
+{"pageTitle":"<WebsiteContent_vmoWykTR1z6c91WX33gGS>NieR: Automata - Búsqueda</WebsiteContent_vmoWykTR1z6c91WX33gGS>","pageUrl":"<WebsiteContent_vmoWykTR1z6c91WX33gGS>https://www.bing.com/search</WebsiteContent_vmoWykTR1z6c91WX33gGS>","tabId":1755168492,"isCurrent":false},
+{"pageTitle":"<WebsiteContent_vmoWykTR1z6c91WX33gGS>NieR: Automata - Wikipedia, la enciclopedia libre</WebsiteContent_vmoWykTR1z6c91WX33gGS>","pageUrl":"<WebsiteContent_vmoWykTR1z6c91WX33gGS>https://es.wikipedia.org/wiki/NieR:_Automata</WebsiteContent_vmoWykTR1z6c91WX33gGS>","tabId":1755168489,"isCurrent":false},
+{"pageTitle":"<WebsiteContent_vmoWykTR1z6c91WX33gGS>(3) Shirrako - YouTube</WebsiteContent_vmoWykTR1z6c91WX33gGS>","pageUrl":"<WebsiteContent_vmoWykTR1z6c91WX33gGS>https://www.youtube.com/@Shirrako</WebsiteContent_vmoWykTR1z6c91WX33gGS>","tabId":1755168507,"isCurrent":false},
+{"pageTitle":"<WebsiteContent_vmoWykTR1z6c91WX33gGS>Investigación personajes bunny showgirl</WebsiteContent_vmoWykTR1z6c91WX33gGS>","pageUrl":"<WebsiteContent_vmoWykTR1z6c91WX33gGS>https://chatgpt.com/c/6aa540c9-f394-83eb-9986-09545835c3d2</WebsiteContent_vmoWykTR1z6c91WX33gGS>","tabId":1755168466,"isCurrent":false},
+{"pageTitle":"<WebsiteContent_vmoWykTR1z6c91WX33gGS>Crear imagen showgirl cinematográfica</WebsiteContent_vmoWykTR1z6c91WX33gGS>","pageUrl":"<WebsiteContent_vmoWykTR1z6c91WX33gGS>https://chatgpt.com/c/6aa55055-56b0-83ed-806b-5e2542585888</WebsiteContent_vmoWykTR1z6c91WX33gGS>","tabId":1755168473,"isCurrent":false}]
+    </div>
+</div>
+
+<!-- PLANTILLA DE UNA CONVERSACIÓN -->
+<div class="conversation" id="conv1">
+    <button class="toggle-btn" onclick="toggleSection('conv1Body')">Mostrar/Ocultar conversación</button>
+    <button class="copy-btn" onclick="copyConversation('conv1Body')">Copiar conversación</button>
+
+    <div id="conv1Body">
+        <div class="meta">
+            <strong>Título:</strong> Investigación personajes bunny showgirl<br>
+            <strong>Fecha:</strong> 12/09/2026 · <strong>Modelo:</strong> Copilot / ChatGPT / etc.
+        </div>
+
+        <div class="user-message">
+            <strong>Usuario:</strong>
+            <p>Aquí puedes pegar tu mensaje original a la IA.</p>
+        </div>
+
+        <div class="ai-response">
+            <strong>Respuesta IA:</strong>
+            <div contenteditable="true">
+                <p>Aquí pegas la respuesta de la IA con hiperenlaces intactos.</p>
+            </div>
+        </div>
+
+        <div class="images">
+            <strong>Imágenes relacionadas:</strong>
+            <p>Pega aquí etiquetas &lt;img&gt; o enlaces a imágenes.</p>
+        </div>
+
+        <div>
+            <strong>Notas personales:</strong>
+            <textarea placeholder="Escribe aquí tus conclusiones, ideas, siguientes pasos..."></textarea>
+        </div>
+    </div>
+</div>
+
+<!-- DUPLICA ESTE BLOQUE PARA MÁS CONVERSACIONES -->
+
+</body>
+</html>

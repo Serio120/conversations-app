@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Conversaciones con IA (Markdown Renderizado)</title>
+
+    <!-- Librería para renderizar Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .conversation, .history-item {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 140px;
+            font-family: monospace;
+            font-size: 0.95rem;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            resize: vertical;
+            background: #fcfcfc;
+        }
+
+        .render-box {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            background: #0078d4;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #005ea0;
+        }
+
+        @media print {
+            .btn {
+                display: none;
+            }
+            body {
+                background: white;
+            }
+            .conversation, .history-item {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+
+    <script>
+        function renderMarkdown(inputId, outputId) {
+            const md = document.getElementById(inputId).value;
+            document.getElementById(outputId).innerHTML = marked.parse(md);
+        }
+
+        function saveQA(userMdId, aiMdId, historyId) {
+            const userMd = document.getElementById(userMdId).value.trim();
+            const aiMd = document.getElementById(aiMdId).value.trim();
+
+            if (!userMd || !aiMd) {
+                alert("Debes pegar la pregunta y la respuesta antes de guardar.");
+                return;
+            }
+
+            const history = document.getElementById(historyId);
+
+            const item = document.createElement("div");
+            item.className = "history-item";
+
+            item.innerHTML = `
+                <h3>Pregunta</h3>
+                <div class="render-box">${marked.parse(userMd)}</div>
+
+                <h3>Respuesta IA</h3>
+                <div class="render-box">${marked.parse(aiMd)}</div>
+            `;
+
+            history.appendChild(item);
+
+            document.getElementById(userMdId).value = "";
+            document.getElementById(aiMdId).value = "";
+
+            document.getElementById("renderUser").innerHTML = "";
+            document.getElementById("renderIA").innerHTML = "";
+
+            alert("Guardado correctamente. Ya puedes pegar la siguiente pregunta+respuesta.");
+        }
+    </script>
+</head>
+
+<body>
+
+<h1>Conversaciones con modelos de IA</h1>
+
+<!-- BLOQUE PRINCIPAL DE TRABAJO -->
+<div class="conversation">
+    <h2>Nueva interacción</h2>
+
+    <h3>Markdown del usuario</h3>
+    <textarea id="mdUser" oninput="renderMarkdown('mdUser','renderUser')"></textarea>
+    <div id="renderUser" class="render-box"></div>
+
+    <h3>Markdown de la IA</h3>
+    <textarea id="mdIA" oninput="renderMarkdown('mdIA','renderIA')"></textarea>
+    <div id="renderIA" class="render-box"></div>
+
+    <button class="btn" onclick="saveQA('mdUser','mdIA','history')">Guardar pregunta + respuesta</button>
+</div>
+
+<!-- HISTORIAL DE INTERACCIONES -->
+<div class="conversation">
+    <h2>Historial de conversación</h2>
+    <div id="history"></div>
+</div>
+
+</body>
+</html>

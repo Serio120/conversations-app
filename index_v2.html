@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Conversaciones con IA (Optimizado)</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .conversation {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .meta {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .toggle-btn, .copy-btn {
+            background: #0078d4;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .toggle-btn:hover, .copy-btn:hover {
+            background: #005ea0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 140px;
+            font-family: monospace;
+            font-size: 0.95rem;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            resize: vertical;
+            background: #fcfcfc;
+        }
+
+        .markdown-box {
+            margin-top: 15px;
+        }
+
+        .images img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .edge-metadata {
+            background: #eef2f7;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+        }
+
+        /* Modo impresión para PDF */
+        @media print {
+            .toggle-btn, .copy-btn {
+                display: none;
+            }
+            body {
+                background: white;
+            }
+            .conversation {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+
+    <script>
+        function toggleSection(id) {
+            const section = document.getElementById(id);
+            section.classList.toggle("hidden");
+        }
+
+        function copyConversation(id) {
+            const content = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(content);
+            alert("Conversación copiada al portapapeles");
+        }
+
+        function copyMarkdown(id) {
+            const content = document.getElementById(id).value;
+            navigator.clipboard.writeText(content);
+            alert("Markdown copiado");
+        }
+    </script>
+</head>
+
+<body>
+
+<h1>Conversaciones con modelos de IA</h1>
+
+<!-- METADATOS DEL NAVEGADOR -->
+<div class="conversation">
+    <h2>Metadatos del navegador (Edge)</h2>
+    <button class="toggle-btn" onclick="toggleSection('edgeMeta')">Mostrar/Ocultar</button>
+
+    <div id="edgeMeta" class="edge-metadata hidden">
+edge_all_open_tabs = [
+{"pageTitle":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK></WebsiteContent_onCTCwc3wGYXByCfeNZCK>","pageUrl":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK></WebsiteContent_onCTCwc3wGYXByCfeNZCK>","tabId":-1,"isCurrent":true},
+{"pageTitle":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>Traductor de Google</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","pageUrl":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>https://translate.google.es</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","tabId":1755168463,"isCurrent":false},
+{"pageTitle":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>traductor google - Búsqueda</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","pageUrl":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>https://www.bing.com/search</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","tabId":1755168458,"isCurrent":false},
+{"pageTitle":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>(3) NIER AUTOMATA Gameplay Walkthrough FULL GAME (4K 60FPS) No Commentary - YouTube</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","pageUrl":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>https://www.youtube.com/watch?v=LgRIzMbgv38</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","tabId":1755168504,"isCurrent":false},
+{"pageTitle":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>NieR: Automata - Búsqueda</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","pageUrl":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>https://www.bing.com/search</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","tabId":1755168492,"isCurrent":false},
+{"pageTitle":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>NieR: Automata - Wikipedia, la enciclopedia libre</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","pageUrl":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>https://es.wikipedia.org/wiki/NieR:_Automata</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","tabId":1755168489,"isCurrent":false},
+{"pageTitle":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>(3) Shirrako - YouTube</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","pageUrl":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>https://www.youtube.com/@Shirrako</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","tabId":1755168507,"isCurrent":false},
+{"pageTitle":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>Crear imagen showgirl cinematográfica</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","pageUrl":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>https://chatgpt.com/c/6aa55055-56b0-83ed-806b-5e2542585888</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","tabId":1755168473,"isCurrent":false},
+{"pageTitle":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>Investigación personajes bunny showgirl</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","pageUrl":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>https://chatgpt.com/c/6aa540c9-f394-83eb-9986-09545835c3d2</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","tabId":1755168466,"isCurrent":false},
+{"pageTitle":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>Conversaciones con IA</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","pageUrl":"<WebsiteContent_onCTCwc3wGYXByCfeNZCK>file://C:/Users/maria/Downloads/BIBLE_BUNNY/TECNICO/index.html</WebsiteContent_onCTCwc3wGYXByCfeNZCK>","tabId":1755168568,"isCurrent":false}]
+    </div>
+</div>
+
+<!-- PLANTILLA DE UNA CONVERSACIÓN -->
+<div class="conversation" id="conv1">
+    <button class="toggle-btn" onclick="toggleSection('conv1Body')">Mostrar/Ocultar conversación</button>
+    <button class="copy-btn" onclick="copyConversation('conv1Body')">Copiar conversación</button>
+
+    <div id="conv1Body">
+        <div class="meta">
+            <strong>Título:</strong> Ejemplo de conversación<br>
+            <strong>Fecha:</strong> 12/09/2026 · <strong>Modelo:</strong> Copilot / ChatGPT / etc.
+        </div>
+
+        <h3>Mensaje del usuario</h3>
+        <textarea class="markdown-box" id="mdUser1" placeholder="Pega aquí el Markdown del mensaje del usuario"></textarea>
+        <button class="copy-btn" onclick="copyMarkdown('mdUser1')">Copiar Markdown</button>
+
+        <h3>Respuesta de la IA</h3>
+        <textarea class="markdown-box" id="mdIA1" placeholder="Pega aquí el Markdown de la respuesta de la IA"></textarea>
+        <button class="copy-btn" onclick="copyMarkdown('mdIA1')">Copiar Markdown</button>
+
+        <h3>Imágenes relacionadas</h3>
+        <p>Pega aquí etiquetas &lt;img&gt; o enlaces a imágenes.</p>
+        <div class="images"></div>
+
+        <h3>Notas personales</h3>
+        <textarea placeholder="Escribe aquí tus conclusiones, ideas, siguientes pasos..."></textarea>
+    </div>
+</div>
+
+<!-- DUPLICA ESTE BLOQUE PARA MÁS CONVERSACIONES -->
+
+</body>
+</html>

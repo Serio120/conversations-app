@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Conversaciones con IA (v15 estable + edición + borrado + persistencia)</title>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<style>
+    body {
+        font-family: system-ui, sans-serif;
+        background: #f5f5f5;
+        margin: 0;
+        padding: 0;
+        display: flex;
+    }
+
+    #sidebar {
+        width: 260px;
+        background: #1e1e1e;
+        color: white;
+        padding: 20px;
+        height: 100vh;
+        overflow-y: auto;
+        position: fixed;
+        left: 0;
+        top: 0;
+    }
+
+    #sidebar h2 {
+        margin-top: 0;
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+    }
+
+    .nav-item {
+        background: #2d2d2d;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .nav-title {
+        flex: 1;
+        font-size: 0.9rem;
+    }
+
+    .nav-buttons {
+        display: flex;
+        gap: 4px;
+    }
+
+    .nav-btn {
+        background: #444;
+        color: white;
+        border: none;
+        padding: 4px 6px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.75rem;
+    }
+
+    #main {
+        margin-left: 280px;
+        padding: 20px;
+        width: calc(100% - 280px);
+    }
+
+    #topBar {
+        position: fixed;
+        top: 0;
+        left: 280px;
+        width: calc(100% - 280px);
+        background: #ffffff;
+        padding: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        z-index: 1000;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .btn {
+        background: #0078d4;
+        color: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    #imgDropzone {
+        background: #fafafa;
+        border: 2px dashed #bbb;
+        padding: 10px;
+        border-radius: 10px;
+        text-align: center;
+        color: #666;
+        width: 260px;
+        height: 80px;
+        overflow-y: auto;
+        font-size: 0.85rem;
+    }
+
+    #imgDropzone img {
+        max-width: 120px;
+        max-height: 120px;
+        margin-top: 10px;
+        border-radius: 8px;
+    }
+
+    .conversation, .history-item {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 16px;
+        margin-top: 120px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    textarea {
+        width: 100%;
+        min-height: 140px;
+        font-family: monospace;
+        font-size: 0.95rem;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        resize: vertical;
+        background: #fcfcfc;
+    }
+
+    .question-box {
+        background: #e8f1ff;
+        border-left: 5px solid #0078d4;
+        padding: 12px;
+        border-radius: 6px;
+        margin-top: 10px;
+    }
+
+    .answer-box {
+        background: #fff;
+        border-left: 5px solid #ffb100;
+        padding: 12px;
+        border-radius: 6px;
+        margin-top: 10px;
+    }
+
+    .answer-box img {
+        max-width: 300px;
+        max-height: 300px;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+
+    @media print {
+        #sidebar, #topBar {
+            display: none;
+        }
+        #main {
+            margin-left: 0;
+            width: 100%;
+        }
+    }
+</style>
+
+<script>
+let conversations = [];
+let editingId = null;
+let pastedImages = [];
+
+/* ---------------------------
+   PEGAR IMÁGENES DESDE PORTAPAPELES
+---------------------------- */
+function setupPasteListener() {
+    document.addEventListener("paste", function (event) {
+        const items = event.clipboardData.items;
+
+        for (const item of items) {
+            if (item.type.indexOf("image") === 0) {
+                const blob = item.getAsFile();
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const img = document.createElement("img");
+                    img.src = e.target.result;
+                    document.getElementById("imgDropzone").appendChild(img);
+                    pastedImages.push(e.target.result);
+                };
+
+                reader.readAsDataURL(blob);
+            }
+        }
+    });
+}
+
+/* ---------------------------
+   RENDER MARKDOWN
+---------------------------- */
+function renderMarkdown(inputId, outputId) {
+    const md = document.getElementById(inputId).value;
+    document.getElementById(outputId).innerHTML = marked.parse(md);
+}
+
+/* ---------------------------
+   FIJAR IMÁGENES
+---------------------------- */
+function fixImages() {
+    const preview = document.getElementById("renderIA");
+
+    pastedImages.forEach(src => {
+        const img = document.createElement("img");
+        img.src = src;
+        preview.appendChild(img);
+    });
+
+    pastedImages = [];
+    document.getElementById("imgDropzone").innerHTML = "Pega imágenes aquí (Ctrl+V)";
+}
+
+/* ---------------------------
+   GUARDAR / EDITAR
+---------------------------- */
+function saveQA() {
+    const userMd = document.getElementById("mdUser").value.trim();
+    const aiMd = document.getElementById("mdIA").value.trim();
+
+    if (!userMd || !aiMd) {
+        alert("Debes pegar la pregunta y la respuesta antes de guardar.");
+        return;
+    }
+
+    const newImages = Array.from(document.querySelectorAll("#renderIA img"))
+        .map(img => img.src);
+
+    if (editingId !== null) {
+        const conv = conversations.find(c => c.id === editingId);
+        conv.userMd = userMd;
+        conv.aiMd = aiMd;
+        conv.images = [...conv.images, ...newImages];
+        alert("Conversación actualizada.");
+    } else {
+        const id = "conv_" + (conversations.length + 1);
+        conversations.push({
+            id,
+            userMd,
+            aiMd,
+            images: [...newImages]
+        });
+        alert("Guardado correctamente.");
+    }
+
+    clearInputs();
+    saveToLocalStorage();
+    rebuildUI();
+    editingId = null;
+}
+
+/* ---------------------------
+   EDITAR
+---------------------------- */
+function editConversation(id) {
+    const conv = conversations.find(c => c.id === id);
+    editingId = id;
+
+    document.getElementById("mdUser").value = conv.userMd;
+    document.getElementById("mdIA").value = conv.aiMd;
+
+    renderMarkdown("mdUser", "renderUser");
+    renderMarkdown("mdIA", "renderIA");
+
+    document.getElementById("mdUser").scrollIntoView({ behavior: "smooth" });
+}
+
+/* ---------------------------
+   BORRAR
+---------------------------- */
+function deleteConversation(id) {
+    if (!confirm("¿Seguro que quieres borrar esta conversación?")) return;
+
+    conversations = conversations.filter(c => c.id !== id);
+    saveToLocalStorage();
+    rebuildUI();
+}
+
+/* ---------------------------
+   LIMPIAR CAMPOS
+---------------------------- */
+function clearInputs() {
+    document.getElementById("mdUser").value = "";
+    document.getElementById("mdIA").value = "";
+    document.getElementById("renderUser").innerHTML = "";
+    document.getElementById("renderIA").innerHTML = "";
+    pastedImages = [];
+    document.getElementById("imgDropzone").innerHTML = "Pega imágenes aquí (Ctrl+V)";
+}
+
+/* ---------------------------
+   PERSISTENCIA
+---------------------------- */
+function saveToLocalStorage() {
+    localStorage.setItem("conversations", JSON.stringify(conversations));
+}
+
+function loadFromLocalStorage() {
+    const saved = localStorage.getItem("conversations");
+    if (saved) conversations = JSON.parse(saved);
+}
+
+/* ---------------------------
+   RECONSTRUIR UI
+---------------------------- */
+function rebuildUI() {
+    const history = document.getElementById("history");
+    const nav = document.getElementById("nav");
+
+    history.innerHTML = "";
+    nav.innerHTML = "";
+
+    conversations.forEach(conv => {
+        /* Historial */
+        const item = document.createElement("div");
+        item.className = "history-item";
+        item.id = conv.id;
+
+        item.innerHTML = `
+            <h3>Pregunta</h3>
+            <div class="question-box">${marked.parse(conv.userMd)}</div>
+
+            <h3>Respuesta IA</h3>
+            <div class="answer-box">${marked.parse(conv.aiMd)}</div>
+        `;
+
+        const answerBox = item.querySelector(".answer-box");
+        conv.images.forEach(src => {
+            const img = document.createElement("img");
+            img.src = src;
+            img.style.maxWidth = "300px";
+            img.style.maxHeight = "300px";
+            answerBox.appendChild(img);
+        });
+
+        history.appendChild(item);
+
+        /* Navegador */
+        const navItem = document.createElement("div");
+        navItem.className = "nav-item";
+
+        const titleSpan = document.createElement("span");
+        titleSpan.className = "nav-title";
+        titleSpan.innerText = conv.id.replace("conv_", "Conversación ");
+
+        const btnContainer = document.createElement("div");
+        btnContainer.className = "nav-buttons";
+
+        const goBtn = document.createElement("button");
+        goBtn.className = "nav-btn";
+        goBtn.innerText = "Ir";
+        goBtn.onclick = () => {
+            document.getElementById(conv.id).scrollIntoView({ behavior: "smooth" });
+        };
+
+        const editBtn = document.createElement("button");
+        editBtn.className = "nav-btn";
+        editBtn.innerText = "Editar";
+        editBtn.onclick = () => editConversation(conv.id);
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "nav-btn";
+        delBtn.innerText = "Borrar";
+        delBtn.onclick = () => deleteConversation(conv.id);
+
+        btnContainer.appendChild(goBtn);
+        btnContainer.appendChild(editBtn);
+        btnContainer.appendChild(delBtn);
+
+        navItem.appendChild(titleSpan);
+        navItem.appendChild(btnContainer);
+        nav.appendChild(navItem);
+    });
+}
+
+/* ---------------------------
+   EXPORTAR PDF
+---------------------------- */
+function exportPDF() {
+    window.print();
+}
+
+/* ---------------------------
+   INICIO
+---------------------------- */
+window.onload = () => {
+    setupPasteListener();
+    loadFromLocalStorage();
+    rebuildUI();
+};
+</script>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+    <h2>Conversaciones guardadas</h2>
+    <div id="nav"></div>
+</div>
+
+<!-- TOP FIXED BAR -->
+<div id="topBar">
+    <div id="imgDropzone">Pega imágenes aquí (Ctrl+V)</div>
+    <button class="btn" onclick="fixImages()">Fijar imágenes</button>
+    <button class="btn" onclick="saveQA()">Guardar pregunta + respuesta</button>
+    <button class="btn" onclick="exportPDF()">Exportar PDF</button>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main">
+
+    <h1>Conversaciones con modelos de IA</h1>
+
+    <div class="conversation">
+        <h2>Nueva interacción</h2>
+
+        <h3>Markdown del usuario</h3>
+        <textarea id="mdUser" oninput="renderMarkdown('mdUser','renderUser')"></textarea>
+        <div id="renderUser" class="question-box"></div>
+
+        <h3>Markdown de la IA</h3>
+        <textarea id="mdIA" oninput="renderMarkdown('mdIA','renderIA')"></textarea>
+        <div id="renderIA" class="answer-box"></div>
+    </div>
+
+    <div class="conversation">
+        <h2>Historial de conversación</h2>
+        <div id="history"></div>
+    </div>
+
+</div>
+
+</body>
+</html>

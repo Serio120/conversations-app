@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Conversaciones con IA (Optimizado v3)</title>
+
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .conversation, .history-item {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 140px;
+            font-family: monospace;
+            font-size: 0.95rem;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            resize: vertical;
+            background: #fcfcfc;
+        }
+
+        .btn {
+            background: #0078d4;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #005ea0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media print {
+            .btn {
+                display: none;
+            }
+            body {
+                background: white;
+            }
+            .conversation, .history-item {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+
+    <script>
+        function saveQA(userId, aiId, historyId) {
+            const userText = document.getElementById(userId).value.trim();
+            const aiText = document.getElementById(aiId).value.trim();
+
+            if (!userText || !aiText) {
+                alert("Debes pegar la pregunta y la respuesta antes de guardar.");
+                return;
+            }
+
+            const history = document.getElementById(historyId);
+
+            const item = document.createElement("div");
+            item.className = "history-item";
+
+            item.innerHTML = `
+                <h3>Pregunta</h3>
+                <pre>${userText.replace(/</g, "&lt;")}</pre>
+
+                <h3>Respuesta IA</h3>
+                <pre>${aiText.replace(/</g, "&lt;")}</pre>
+            `;
+
+            history.appendChild(item);
+
+            document.getElementById(userId).value = "";
+            document.getElementById(aiId).value = "";
+
+            alert("Guardado correctamente. Ya puedes pegar la siguiente pregunta+respuesta.");
+        }
+    </script>
+</head>
+
+<body>
+
+<h1>Conversaciones con modelos de IA</h1>
+
+<!-- BLOQUE PRINCIPAL DE TRABAJO -->
+<div class="conversation">
+    <h2>Nueva interacción</h2>
+
+    <h3>Markdown del usuario</h3>
+    <textarea id="mdUser"></textarea>
+
+    <h3>Markdown de la IA</h3>
+    <textarea id="mdIA"></textarea>
+
+    <button class="btn" onclick="saveQA('mdUser','mdIA','history')">Guardar pregunta + respuesta</button>
+</div>
+
+<!-- HISTORIAL DE INTERACCIONES -->
+<div class="conversation">
+    <h2>Historial de conversación</h2>
+    <div id="history"></div>
+</div>
+
+</body>
+</html>
